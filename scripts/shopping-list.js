@@ -71,9 +71,6 @@ const shoppingList = (function(){
         store.addItem(newItem);
         render();
       });
-
-      // addItemToShoppingList(newItemName);
-      // render();
     });
   }
   
@@ -92,14 +89,18 @@ const shoppingList = (function(){
   function handleItemCheckClicked() {
     $('.js-shopping-list').on('click', '.js-item-toggle', event => {
       const id = getItemIdFromElement(event.currentTarget);
-      toggleCheckedForListItem(id);
-      render();
+      // findById finds the element with the current id that was clicked
+      // And returns an object
+      const itemId = store.findById(id);
+      // Store the results of itemId inside checked object with the property name of checked
+      // and the opposite value of itemId.checked
+      const checkedObj = {checked: !itemId.checked};
+      // updateItem updates the item if it is checked or not when clicking check button
+      api.updateItem(id, checkedObj, () => {
+        store.findAndUpdate(id, checkedObj);
+        render();
+      });
     });
-  }
-  
-  function deleteListItem(id) {
-    const index = store.items.findIndex(item => item.id === id);
-    store.items.splice(index, 1);
   }
   
   function editListItemName(id, itemName) {
@@ -122,9 +123,11 @@ const shoppingList = (function(){
       // get the index of the item in store.items
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
-      deleteListItem(id);
-      // render the updated shopping list
-      render();
+      api.deleteItem(id, () => {
+        store.findAndDelete(id);
+        // render the updated shopping list
+        render();
+      });
     });
   }
   
@@ -133,8 +136,10 @@ const shoppingList = (function(){
       event.preventDefault();
       const id = getItemIdFromElement(event.currentTarget);
       const itemName = $(event.currentTarget).find('.shopping-item').val();
-      editListItemName(id, itemName);
-      render();
+      api.updateItem(id, {name: itemName}, () => { 
+        store.findAndUpdate(id, itemName);
+        render();
+      });
     });
   }
   
