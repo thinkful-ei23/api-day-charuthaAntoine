@@ -60,12 +60,20 @@ const shoppingList = (function(){
   }
   
   function handleNewItemSubmit() {
+    
     $('#js-shopping-list-form').submit(function (event) {
       event.preventDefault();
       const newItemName = $('.js-shopping-list-entry').val();
       $('.js-shopping-list-entry').val('');
-      addItemToShoppingList(newItemName);
-      render();
+     
+      // Calls API 
+      api.createItem(newItemName, (newItem) => { 
+        store.addItem(newItem);
+        render();
+      });
+
+      // addItemToShoppingList(newItemName);
+      // render();
     });
   }
   
